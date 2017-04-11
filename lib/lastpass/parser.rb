@@ -6,14 +6,6 @@ module LastPass
         # OpenSSL constant
         RSA_PKCS1_OAEP_PADDING = 4
 
-        # Secure note types that contain account-like information
-        ALLOWED_SECURE_NOTE_TYPES = {
-            "Server" => true,
-            "Email Account" => true,
-            "Database" => true,
-            "Instant Messenger" => true,
-        }
-
         # Splits the blob into chucks grouped by kind.
         def self.extract_chunks blob
             chunks = []
@@ -48,17 +40,10 @@ module LastPass
 
                 # Parse secure note
                 if secure_note == "1"
-                    parsed = parse_secure_note_server notes
-                    if !ALLOWED_SECURE_NOTE_TYPES.key? parsed[:type]
-                        return nil
-                    end
-
-                    url = parsed[:url] if parsed.key? :url
-                    username = parsed[:username] if parsed.key? :username
-                    password = parsed[:password] if parsed.key? :password
+                    Note.new id, name, notes, group
+                else
+                    Account.new id, name, username, password, url, group
                 end
-
-                Account.new id, name, username, password, url, group
             end
         end
 
